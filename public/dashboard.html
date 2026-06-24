@@ -10,14 +10,12 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
         body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
         
-        /* Sidebar Centrado */
         .sidebar-menu { width: 80px; background: #0f172a; border-right: 1px solid #334155; display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
         .avatar-box { width: 50px; height: 50px; border-radius: 50%; cursor: pointer; border: 2px solid var(--accent); overflow: hidden; }
         .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
         .menu-options { display: flex; flex-direction: column; gap: 40px; flex-grow: 1; justify-content: center; font-size: 24px; color: #94a3b8; }
         .menu-options i:hover { color: var(--accent); cursor: pointer; }
         
-        /* Paneles y Modales */
         .panel { width: 340px; background: var(--bg-side); border-right: 1px solid #334155; display: none; flex-direction: column; }
         .panel.active { display: flex; }
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 10; }
@@ -29,7 +27,7 @@
 
     <nav class="sidebar-menu">
         <div class="avatar-box" onclick="document.getElementById('perfilModal').style.display='flex'">
-            <img src="https://via.placeholder.com/150" alt="Perfil">
+            <img id="avatarPrincipal" src="https://via.placeholder.com/150" alt="Perfil">
         </div>
         <div class="menu-options">
             <i class="fa-solid fa-message" onclick="mostrarPanel('chats-panel')"></i>
@@ -51,9 +49,10 @@
     <div id="perfilModal" class="modal">
         <div class="modal-content">
             <h3>Mi Perfil</h3>
-            <input type="text" placeholder="Nuevo nombre" style="width:100%; padding:8px; margin:10px 0;">
-            <button class="btn" style="background:var(--accent);">Guardar Perfil</button>
-            <button class="btn" style="background:var(--danger); color:white;" onclick="alert('Cuenta eliminada')">Borrar cuenta permanentemente</button>
+            <input type="file" id="inputFoto" accept="image/*" style="margin: 15px 0;">
+            <input type="text" id="nombreInput" placeholder="Nuevo nombre" style="width:100%; padding:8px; margin-bottom:10px;">
+            <button class="btn" style="background:var(--accent);" onclick="guardarPerfil()">Guardar Perfil</button>
+            <button class="btn" style="background:var(--danger); color:white;" onclick="confirmarBorrado()">Borrar cuenta permanentemente</button>
             <button class="btn" onclick="document.getElementById('perfilModal').style.display='none'">Cerrar</button>
         </div>
     </div>
@@ -65,7 +64,29 @@
             
             const lista = document.getElementById(idPanel).querySelector('.items-list');
             if (lista.children.length === 0 && !lista.querySelector('.msg')) {
-                lista.innerHTML = `<p style="text-align:center; color:#64748b; margin-top:20px;">Sin ${idPanel === 'chats-panel' ? 'chats' : 'grupos'} recientes</p>`;
+                lista.innerHTML = `<p class="msg" style="text-align:center; color:#64748b; margin-top:20px;">Sin ${idPanel === 'chats-panel' ? 'chats' : 'grupos'} recientes</p>`;
+            }
+        }
+
+        function guardarPerfil() {
+            const inputFoto = document.getElementById('inputFoto');
+            const avatar = document.getElementById('avatarPrincipal');
+            
+            // Si el usuario seleccionó una imagen, la guardamos temporalmente en el avatar
+            if (inputFoto.files && inputFoto.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    avatar.src = e.target.result;
+                }
+                reader.readAsDataURL(inputFoto.files[0]);
+            }
+            alert("Perfil guardado con éxito");
+            document.getElementById('perfilModal').style.display = 'none';
+        }
+
+        function confirmarBorrado() {
+            if(confirm("¿Estás seguro de que quieres borrar tu cuenta permanentemente? Esta acción no se puede deshacer.")) {
+                window.location.href = '/'; 
             }
         }
     </script>
