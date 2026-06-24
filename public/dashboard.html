@@ -6,7 +6,7 @@
     <title>Ecosistema de Chat Profesional</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg-main: #0f172a; --bg-side: #1e293b; --accent: #38bdf8; --text-main: #f8fafc; --danger: #ef4444; }
+        :root { --bg-main: #0f172a; --bg-side: #1e293b; --accent: #38bdf8; --danger: #ef4444; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
         body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
         
@@ -18,9 +18,14 @@
         
         .panel { width: 340px; background: var(--bg-side); border-right: 1px solid #334155; display: none; flex-direction: column; }
         .panel.active { display: flex; }
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 10; }
+        
+        /* Modales */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 10; }
         .modal-content { background: var(--bg-side); padding: 30px; border-radius: 12px; width: 300px; text-align: center; }
         .btn { padding: 10px; width: 100%; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+        
+        /* Vista previa de foto */
+        #imgVistaPrevia { max-width: 100%; border-radius: 8px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -40,7 +45,6 @@
         <div style="padding: 20px;"><h3>Mensajería</h3></div>
         <div class="items-list" id="lista-chats"></div>
     </div>
-
     <div id="grupos-panel" class="panel">
         <div style="padding: 20px;"><h3>Grupos</h3></div>
         <div class="items-list" id="lista-grupos"></div>
@@ -50,10 +54,17 @@
         <div class="modal-content">
             <h3>Mi Perfil</h3>
             <input type="file" id="inputFoto" accept="image/*" style="margin: 15px 0;">
-            <input type="text" id="nombreInput" placeholder="Nuevo nombre" style="width:100%; padding:8px; margin-bottom:10px;">
             <button class="btn" style="background:var(--accent);" onclick="guardarPerfil()">Guardar Perfil</button>
-            <button class="btn" style="background:var(--danger); color:white;" onclick="confirmarBorrado()">Borrar cuenta permanentemente</button>
+            <button class="btn" style="background:#475569;" onclick="verFotoPerfil()">Ver foto de perfil</button>
+            <button class="btn" style="background:var(--danger); color:white;" onclick="confirmarBorrado()">Borrar cuenta</button>
             <button class="btn" onclick="document.getElementById('perfilModal').style.display='none'">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="viewPhotoModal" class="modal">
+        <div class="modal-content" style="width: auto;">
+            <img id="imgVistaPrevia" src="" alt="Foto grande">
+            <button class="btn" onclick="document.getElementById('viewPhotoModal').style.display='none'">Cerrar</button>
         </div>
     </div>
 
@@ -61,33 +72,30 @@
         function mostrarPanel(idPanel) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.getElementById(idPanel).classList.add('active');
-            
-            const lista = document.getElementById(idPanel).querySelector('.items-list');
-            if (lista.children.length === 0 && !lista.querySelector('.msg')) {
-                lista.innerHTML = `<p class="msg" style="text-align:center; color:#64748b; margin-top:20px;">Sin ${idPanel === 'chats-panel' ? 'chats' : 'grupos'} recientes</p>`;
-            }
         }
 
         function guardarPerfil() {
             const inputFoto = document.getElementById('inputFoto');
             const avatar = document.getElementById('avatarPrincipal');
-            
-            // Si el usuario seleccionó una imagen, la guardamos temporalmente en el avatar
             if (inputFoto.files && inputFoto.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    avatar.src = e.target.result;
-                }
+                reader.onload = (e) => avatar.src = e.target.result;
                 reader.readAsDataURL(inputFoto.files[0]);
             }
-            alert("Perfil guardado con éxito");
+            alert("Perfil guardado");
             document.getElementById('perfilModal').style.display = 'none';
         }
 
+        function verFotoPerfil() {
+            const avatar = document.getElementById('avatarPrincipal');
+            const imgVistaPrevia = document.getElementById('imgVistaPrevia');
+            imgVistaPrevia.src = avatar.src; // Pasa la fuente actual al modal de vista
+            document.getElementById('perfilModal').style.display = 'none'; // Cierra el de perfil
+            document.getElementById('viewPhotoModal').style.display = 'flex'; // Abre el de vista
+        }
+
         function confirmarBorrado() {
-            if(confirm("¿Estás seguro de que quieres borrar tu cuenta permanentemente? Esta acción no se puede deshacer.")) {
-                window.location.href = '/'; 
-            }
+            if(confirm("¿Eliminar cuenta permanentemente?")) window.location.href = '/';
         }
     </script>
 </body>
