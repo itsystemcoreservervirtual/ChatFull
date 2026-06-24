@@ -5,87 +5,74 @@
     <title>Ecosistema de Chat Profesional</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg-main: #0f172a; --bg-side: #1e293b; --accent: #38bdf8; --danger: #ef4444; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background: var(--bg-main); color: #f8fafc; display: flex; height: 100vh; overflow: hidden; }
+        /* Paleta de colores: Azul marino #000020 y blanco */
+        :root { 
+            --nav-bg: #000020; 
+            --panel-bg: #000020; 
+            --accent: #000020; /* Botones ahora azul marino */
+            --text-color: #ffffff; 
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; color: var(--text-color); }
+        body { background: #0f172a; height: 100vh; display: flex; overflow: hidden; }
+
+        .sidebar-menu { width: 80px; background: #000020; border-right: 1px solid #334155; display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
         
-        /* Sidebar */
-        .sidebar-menu { width: 80px; background: #0f172a; border-right: 1px solid #334155; display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
-        .avatar-box { width: 50px; height: 50px; border-radius: 50%; cursor: pointer; border: 2px solid var(--accent); overflow: hidden; }
-        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-        .menu-options { display: flex; flex-direction: column; gap: 40px; flex-grow: 1; justify-content: center; font-size: 24px; color: #94a3b8; }
+        /* Paneles de Mensajes y Grupos */
+        .panel { width: 340px; background: var(--panel-bg); border-right: 1px solid #334155; display: none; flex-direction: column; padding: 20px; }
+        .panel.active { display: flex; }
         
-        /* Modales */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 10; }
-        .modal-content { background: var(--bg-side); padding: 20px; border-radius: 12px; width: 320px; text-align: center; position: relative; }
-        .btn { padding: 10px; width: 100%; border: none; border-radius: 6px; cursor: pointer; margin-top: 8px; color: white; }
+        /* Mensajes de estado vacío */
+        .empty-state { text-align: center; margin-top: 50px; color: #94a3b8; font-size: 0.9rem; }
         
-        /* Input file oculto y personalizado */
-        .custom-file-upload { display: inline-block; padding: 10px; background: #475569; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 10px; }
+        /* Botones de Perfil */
+        .btn { padding: 10px; width: 100%; border: 1px solid #ffffff; border-radius: 6px; cursor: pointer; margin-top: 10px; background: var(--accent); color: white; text-align: center; }
         
-        .close-btn { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px; }
+        /* Modal */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 10; justify-content: center; align-items: center; }
+        .modal-content { background: var(--panel-bg); padding: 30px; border-radius: 12px; width: 320px; text-align: center; border: 1px solid #ffffff; }
     </style>
 </head>
 <body>
 
     <nav class="sidebar-menu">
-        <div class="avatar-box" onclick="document.getElementById('perfilModal').style.display='flex'">
-            <img id="avatarPrincipal" src="https://via.placeholder.com/150" alt="Perfil">
-        </div>
-        <div class="menu-options">
-            <i class="fa-solid fa-message" onclick="mostrarPanel('chats-panel')"></i>
-            <i class="fa-solid fa-users" onclick="mostrarPanel('grupos-panel')"></i>
-        </div>
-        <div onclick="window.location.href='/'" style="color:var(--danger); cursor:pointer;"><i class="fa-solid fa-right-from-bracket"></i></div>
+        <i class="fa-solid fa-message" style="margin-bottom: 40px; cursor: pointer;" onclick="mostrarPanel('chats-panel')"></i>
+        <i class="fa-solid fa-users" style="cursor: pointer;" onclick="mostrarPanel('grupos-panel')"></i>
     </nav>
 
-    <div id="perfilModal" class="modal">
-        <div class="modal-content">
-            <h3>Mi Perfil</h3>
-            <label class="custom-file-upload">
-                <input type="file" id="inputFoto" accept="image/*" style="display:none" onchange="previewFile()">
-                Cambiar foto de perfil
-            </label>
-            <button class="btn" style="background:var(--accent);" onclick="verFotoPerfil()">Ver foto de perfil</button>
-            <button class="btn" style="background:var(--danger);" onclick="eliminarFoto()">Eliminar foto de perfil</button>
-            <button class="btn" onclick="document.getElementById('perfilModal').style.display='none'">Cerrar</button>
-        </div>
+    <div id="chats-panel" class="panel active">
+        <h3>Mensajería</h3>
+        <div id="lista-chats" class="empty-state">Sin chats recientes</div>
     </div>
 
-    <div id="viewPhotoModal" class="modal">
-        <span class="close-btn" onclick="document.getElementById('viewPhotoModal').style.display='none'">&times;</span>
-        <img id="imgVistaPrevia" src="" style="max-width: 80%; border-radius: 8px;">
+    <div id="grupos-panel" class="panel">
+        <h3>Grupos</h3>
+        <div id="lista-grupos" class="empty-state">Sin grupos recientes</div>
     </div>
 
     <script>
-        // Cargar foto al iniciar
-        window.onload = () => {
-            const savedPhoto = localStorage.getItem('userAvatar');
-            if (savedPhoto) document.getElementById('avatarPrincipal').src = savedPhoto;
+        // Función para cambiar entre paneles
+        function mostrarPanel(idPanel) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(idPanel).classList.add('active');
         }
 
-        function previewFile() {
-            const file = document.getElementById('inputFoto').files[0];
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const dataUrl = reader.result;
-                document.getElementById('avatarPrincipal').src = dataUrl;
-                localStorage.setItem('userAvatar', dataUrl); // Guarda persistente
+        // Lógica para mostrar usuarios/grupos dinámicamente
+        // Si necesitas que los grupos aparezcan solo a los agregados, 
+        // filtrarías un array antes de renderizar.
+        function cargarDatos() {
+            const chats = []; // Aquí irían tus usuarios nuevos
+            const grupos = []; // Aquí filtrarías grupos por usuario
+
+            if (chats.length === 0) {
+                document.getElementById('lista-chats').innerHTML = "Sin chats recientes";
             }
-            if (file) reader.readAsDataURL(file);
+            
+            if (grupos.length === 0) {
+                document.getElementById('lista-grupos').innerHTML = "Sin grupos recientes";
+            }
         }
 
-        function verFotoPerfil() {
-            document.getElementById('imgVistaPrevia').src = document.getElementById('avatarPrincipal').src;
-            document.getElementById('perfilModal').style.display = 'none';
-            document.getElementById('viewPhotoModal').style.display = 'flex';
-        }
-
-        function eliminarFoto() {
-            localStorage.removeItem('userAvatar');
-            document.getElementById('avatarPrincipal').src = 'https://via.placeholder.com/150';
-            alert("Foto eliminada");
-        }
+        window.onload = cargarDatos;
     </script>
 </body>
 </html>
