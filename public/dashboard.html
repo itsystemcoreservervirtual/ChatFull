@@ -5,11 +5,17 @@
     <title>Ecosistema de Chat Profesional</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg-main: #0f172a; --bg-side: #1e293b; --accent: #38bdf8; --danger: #ef4444; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background: var(--bg-main); color: #f8fafc; display: flex; height: 100vh; overflow: hidden; }
+        /* Paleta de colores: Azul marino y blanco */
+        :root { 
+            --bg-main: #0f172a; 
+            --bg-side: #0f172a; /* Azul marino */
+            --accent: #38bdf8; 
+            --danger: #ef4444; 
+            --text-color: #ffffff; /* Blanco */
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; color: var(--text-color); }
+        body { background: var(--bg-main); height: 100vh; overflow: hidden; display: flex; }
         
-        /* Sidebar */
         .sidebar-menu { width: 80px; background: #0f172a; border-right: 1px solid #334155; display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
         .avatar-box { width: 50px; height: 50px; border-radius: 50%; cursor: pointer; border: 2px solid var(--accent); overflow: hidden; }
         .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
@@ -17,13 +23,13 @@
         
         /* Modales */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 10; }
-        .modal-content { background: var(--bg-side); padding: 20px; border-radius: 12px; width: 320px; text-align: center; position: relative; }
-        .btn { padding: 10px; width: 100%; border: none; border-radius: 6px; cursor: pointer; margin-top: 8px; color: white; }
+        .modal-content { background: var(--bg-side); border: 1px solid #334155; padding: 30px; border-radius: 12px; width: 320px; text-align: center; position: relative; }
+        .btn { padding: 10px; width: 100%; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; color: white; background: #1e293b; }
         
-        /* Input file oculto y personalizado */
-        .custom-file-upload { display: inline-block; padding: 10px; background: #475569; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 10px; }
+        .custom-file-upload { display: inline-block; padding: 10px; background: #1e293b; border: 1px solid var(--accent); border-radius: 6px; cursor: pointer; width: 100%; margin-top: 10px; }
         
-        .close-btn { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px; }
+        /* Botones de cierre (X) */
+        .close-btn { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 24px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -33,14 +39,15 @@
             <img id="avatarPrincipal" src="https://via.placeholder.com/150" alt="Perfil">
         </div>
         <div class="menu-options">
-            <i class="fa-solid fa-message" onclick="mostrarPanel('chats-panel')"></i>
-            <i class="fa-solid fa-users" onclick="mostrarPanel('grupos-panel')"></i>
+            <i class="fa-solid fa-message"></i>
+            <i class="fa-solid fa-users"></i>
         </div>
         <div onclick="window.location.href='/'" style="color:var(--danger); cursor:pointer;"><i class="fa-solid fa-right-from-bracket"></i></div>
     </nav>
 
     <div id="perfilModal" class="modal">
         <div class="modal-content">
+            <span class="close-btn" onclick="document.getElementById('perfilModal').style.display='none'">&times;</span>
             <h3>Mi Perfil</h3>
             <label class="custom-file-upload">
                 <input type="file" id="inputFoto" accept="image/*" style="display:none" onchange="previewFile()">
@@ -48,7 +55,6 @@
             </label>
             <button class="btn" style="background:var(--accent);" onclick="verFotoPerfil()">Ver foto de perfil</button>
             <button class="btn" style="background:var(--danger);" onclick="eliminarFoto()">Eliminar foto de perfil</button>
-            <button class="btn" onclick="document.getElementById('perfilModal').style.display='none'">Cerrar</button>
         </div>
     </div>
 
@@ -58,7 +64,6 @@
     </div>
 
     <script>
-        // Cargar foto al iniciar
         window.onload = () => {
             const savedPhoto = localStorage.getItem('userAvatar');
             if (savedPhoto) document.getElementById('avatarPrincipal').src = savedPhoto;
@@ -70,7 +75,7 @@
             reader.onloadend = () => {
                 const dataUrl = reader.result;
                 document.getElementById('avatarPrincipal').src = dataUrl;
-                localStorage.setItem('userAvatar', dataUrl); // Guarda persistente
+                localStorage.setItem('userAvatar', dataUrl);
             }
             if (file) reader.readAsDataURL(file);
         }
