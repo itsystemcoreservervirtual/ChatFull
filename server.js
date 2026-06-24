@@ -23,7 +23,17 @@ app.get('/api/chats', async (req, res) => {
         res.status(500).json({ error: "Error al cargar" });
     }
 });
-
+// --- PUENTE PARA CARGAR CHATS ---
+app.get('/api/chats', async (req, res) => {
+    try {
+        const Chat = require('./models/Chat'); // Asegúrate que este modelo exista
+        const chats = await Chat.find();      // Busca todos los chats en MongoDB
+        res.json(chats);                      // Envía los datos al navegador
+    } catch (err) {
+        console.error("Error al cargar chats:", err);
+        res.status(500).json({ error: "Error en el servidor" });
+    }
+});
 // MÓDULO DE WEBSOCKETS (Lógica en tiempo real)
 io.on('connection', (socket) => {
     console.log('Usuario conectado al ecosistema de chat');
