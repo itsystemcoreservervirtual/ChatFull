@@ -2,173 +2,76 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecosistema de Chat Profesional</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Dashboard ChatFriends</title>
     <style>
-        :root { --bg-main: #0f172a; --bg-side: #1e293b; --accent: #38bdf8; --text-main: #f8fafc; --text-muted: #94a3b8; --danger: #ef4444; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
-        body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
-        .sidebar-menu { width: 80px; background: #0f172a; border-right: 1px solid #334155; display: flex; flex-direction: column; align-items: center; padding: 20px 0; justify-content: space-between; }
-        .avatar-container { position: relative; width: 50px; height: 50px; cursor: pointer; }
-        .avatar-container img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
-        .menu-options { display: flex; flex-direction: column; gap: 25px; font-size: 20px; color: var(--text-muted); }
-        .menu-options i { cursor: pointer; transition: 0.2s; }
-        .menu-options i:hover { color: var(--accent); }
-        .logout-btn { color: var(--danger); cursor: pointer; font-size: 20px; }
-        .chats-panel { width: 340px; background: var(--bg-side); border-right: 1px solid #334155; display: flex; flex-direction: column; }
-        .panel-header { padding: 20px; border-bottom: 1px solid #334155; }
-        .search-box { display: flex; background: var(--bg-main); padding: 10px; border-radius: 8px; margin-top: 10px; align-items: center; }
-        .search-box input { background: transparent; border: none; color: white; outline: none; margin-left: 10px; width: 100%; }
-        .quick-actions { display: flex; justify-content: space-between; padding: 10px 20px; font-size: 13px; border-bottom: 1px solid #334155; background: #111827; }
-        .action-item { cursor: pointer; color: var(--accent); display: flex; align-items: center; gap: 5px; }
-        .items-list { flex: 1; overflow-y: auto; padding: 10px; }
-        .chat-item { display: flex; align-items: center; padding: 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; margin-bottom: 5px; }
-        .chat-item:hover { background: #334155; }
-        .chat-item img { width: 45px; height: 45px; border-radius: 50%; margin-right: 12px; }
-        .chat-info { flex: 1; }
-        .chat-info h4 { font-size: 14px; margin-bottom: 3px; }
-        .chat-info p { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .chat-viewport { flex: 1; display: flex; flex-direction: column; background: var(--bg-main); }
-        .viewport-header { background: var(--bg-side); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #334155; }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .back-arrow { font-size: 18px; cursor: pointer; color: var(--text-muted); display: none; }
-        .header-right { display: flex; gap: 15px; color: var(--text-muted); cursor: pointer; }
-        .header-right i:hover { color: var(--accent); }
-        .messages-area { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .message-row { display: flex; flex-direction: column; max-width: 65%; position: relative; }
-        .message-row.mine { align-self: flex-end; }
-        .message-row.others { align-self: flex-start; }
-        .msg-bubble { padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
-        .mine .msg-bubble { background: #0284c7; color: white; border-bottom-right-radius: 2px; }
-        .others .msg-bubble { background: #334155; color: white; border-bottom-left-radius: 2px; }
-        .input-bar { padding: 20px; background: var(--bg-side); display: flex; align-items: center; gap: 15px; border-top: 1px solid #334155; }
-        .input-bar input[type="text"] { flex: 1; background: var(--bg-main); border: 1px solid #334155; padding: 12px 18px; border-radius: 25px; color: white; outline: none; font-size: 14px; }
-        .icon-btn { font-size: 20px; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
-        .icon-btn:hover { color: var(--accent); }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 100; }
-        .modal-content { background: var(--bg-side); padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; border: 1px solid #334155; }
-        .modal-content h3 { margin-bottom: 15px; color: var(--accent); }
-        .danger-zone { margin-top: 25px; border-top: 1px solid #475569; padding-top: 15px; }
-        .btn-danger { background: var(--danger); color: white; padding: 10px; width: 100%; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        /* Estilos básicos para que los paneles funcionen */
+        .chats-panel, .grupos-panel {
+            display: none;
+            padding: 20px;
+            color: white;
+        }
+        /* Mostrar el de chats por defecto */
+        #chats-panel { display: block; }
+        
+        .sidebar-menu { width: 60px; background: #1a222c; height: 100vh; position: fixed; }
+        .menu-options { margin-top: 20px; text-align: center; }
+        .menu-options div { margin-bottom: 20px; cursor: pointer; color: white; font-size: 20px; }
+        .logout-btn { position: absolute; bottom: 20px; left: 20px; cursor: pointer; color: white; }
     </style>
 </head>
 <body>
 
     <div class="sidebar-menu">
         <div class="avatar-container" onclick="openModal('profileModal')">
-            <img src="https://via.placeholder.com/150" alt="Mi Perfil">
+            <img src="https://via.placeholder.com/50" alt="Mi Perfil">
         </div>
+        
         <div class="menu-options">
-           <div onclick="mostrarPanel('chats-panel')" style="cursor:pointer; margin-bottom: 20px; color: white;">
-    <i class="fa-solid fa-message" title="Chats"></i>
-</div>
-<div onclick="mostrarPanel('grupos-panel')" style="cursor:pointer; color: white;">
-    <i class="fa-solid fa-users" title="Grupos"></i>
-</div>
-          </div> 
-
-    <script>
-        function mostrarPanel(idPanel) {
-            // Ocultar todos los paneles
-            document.querySelectorAll('.chats-panel, .grupos-panel').forEach(p => {
-                p.style.display = 'none';
-            });
-
-            // Mostrar el seleccionado
-            const panel = document.getElementById(idPanel);
-            if (panel) {
-                panel.style.display = 'block';
-            }
-        }
-    </script>
-
-    <div class="logout-btn" onclick="window.location.href='/'" title="Cerrar Sesión">
-        <i class="fa-solid fa-right-from-bracket"></i>
-    </div>
-
-</body>
-</html>
+            <div onclick="mostrarPanel('chats-panel')">
+                <i class="fa-solid fa-message" title="Chats"></i>
+            </div>
+            <div onclick="mostrarPanel('grupos-panel')">
+                <i class="fa-solid fa-users" title="Grupos"></i>
+            </div>
         </div>
+
         <div class="logout-btn" onclick="window.location.href='/'" title="Cerrar Sesión">
             <i class="fa-solid fa-right-from-bracket"></i>
         </div>
     </div>
 
-    <div class="chats-panel">
-        <div class="panel-header">
-            <h3>Mensajería</h3>
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
-                <input type="text" placeholder="Buscar conversación...">
-            </div>
+    <div style="margin-left: 60px;">
+        <div id="chats-panel" class="chats-panel">
+            <h1>Panel de Chats</h1>
+            <p>Aquí verás tus conversaciones.</p>
         </div>
-        <div class="quick-actions">
-            <div class="action-item" onclick="openModal('actionModal')">
-                <i class="fa-solid fa-circle-plus"></i> Crear nuevo grupo
-            </div>
-            <div class="action-item" onclick="openModal('actionModal')">
-                <i class="fa-solid fa-user-plus"></i> Buscar amigo
-            </div>
-        </div>
-        <div class="items-list">
-            <div class="chat-item">
-                <img src="https://via.placeholder.com/150" alt="Avatar">
-                <div class="chat-info">
-                    <h4>Servidor de Pruebas</h4>
-                    <p>Bienvenido al canal profesional...</p>
-                </div>
-            </div>
+
+        <div id="grupos-panel" class="grupos-panel">
+            <h1>Panel de Grupos</h1>
+            <p>Aquí verás tus grupos y amigos.</p>
         </div>
     </div>
 
-    <div class="chat-viewport">
-        <div class="viewport-header">
-            <div class="header-left">
-                <i class="fa-solid fa-arrow-left back-arrow"></i>
-                <img src="https://via.placeholder.com/150" style="width:40px; height:40px; border-radius:50%; object-fit:cover;" alt="Avatar">
-                <div>
-                    <h4>Canal de Comunicación</h4>
-                    <span style="font-size:11px; color: var(--text-muted);">Servidor Activo</span>
-                </div>
-            </div>
-            <div class="header-right">
-                <i class="fa-solid fa-user-gear" onclick="openModal('actionModal')" title="Opciones Avanzadas"></i>
-            </div>
-        </div>
-
-        <div class="messages-area">
-            <div class="message-row others">
-                <div class="msg-bubble">¡Estructura de interfaz web profesional configurada con éxito!</div>
-            </div>
-        </div>
-
-        <div class="input-bar">
-            <label class="icon-btn"><i class="fa-solid fa-paperclip"></i></label>
-            <input type="text" placeholder="Escribe un mensaje sin límites de caracteres...">
-            <i class="fa-solid fa-paper-plane icon-btn" style="color: var(--accent);"></i>
-        </div>
-    </div>
-
-    <div class="modal" id="profileModal">
+    <div class="modal" id="profileModal" style="display:none;">
         <div class="modal-content">
             <h3>Mi Perfil de Usuario</h3>
-            <input type="file" style="margin: 15px 0;">
-            <div class="danger-zone">
-                <button class="btn-danger" onclick="window.location.href='/'">Borrar cuenta permanentemente</button>
-            </div>
-            <button onclick="closeModal('profileModal')" style="margin-top:15px; background:transparent; color:white; border:1px solid #334155; padding:8px; width:100%; border-radius:6px; cursor:pointer;">Cerrar</button>
+            <button onclick="closeModal('profileModal')">Cerrar</button>
         </div>
     </div>
 
- 
-
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            if(window.innerWidth <= 768) {
-                document.querySelector('.back-arrow').style.display = 'block';
+        function mostrarPanel(idPanel) {
+            // Ocultar todos los paneles
+            document.getElementById('chats-panel').style.display = 'none';
+            document.getElementById('grupos-panel').style.display = 'none';
+            
+            // Mostrar el seleccionado
+            const seleccionado = document.getElementById(idPanel);
+            if(seleccionado) {
+                seleccionado.style.display = 'block';
             }
-        });
+        }
+
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     </script>
