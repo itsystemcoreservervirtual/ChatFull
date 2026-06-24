@@ -5,25 +5,24 @@
     <title>Ecosistema de Chat Profesional</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg-main: #000020; --bg-side: #000020; --accent: #000020; --danger: #ef4444; }
+        :root { --bg-color: #000020; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; color: white; }
-        body { background: var(--bg-main); display: flex; height: 100vh; overflow: hidden; }
+        body { background: var(--bg-color); display: flex; height: 100vh; overflow: hidden; }
         
         .sidebar-menu { width: 80px; background: #000020; border-right: 1px solid #334155; display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
         .avatar-box { width: 50px; height: 50px; border-radius: 50%; cursor: pointer; border: 2px solid white; overflow: hidden; }
         .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-        .menu-options { display: flex; flex-direction: column; gap: 40px; flex-grow: 1; justify-content: center; font-size: 24px; color: white; cursor: pointer; }
+        .menu-options { display: flex; flex-direction: column; gap: 40px; flex-grow: 1; justify-content: center; font-size: 24px; cursor: pointer; }
         
         .panel { display: none; width: 300px; background: #000020; border-right: 1px solid #334155; padding: 20px; }
         .panel.active { display: block; }
-        .empty-msg { text-align: center; margin-top: 50px; color: #94a3b8; }
+        .empty-msg { text-align: center; margin-top: 50px; color: #94a3b8; font-style: italic; }
+        .item-list { padding: 15px; border-bottom: 1px solid #334155; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
+        .item-list:hover { background: #0b0b30; }
         
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 10; }
-        .modal-content { background: #000020; padding: 20px; border-radius: 12px; width: 320px; text-align: center; position: relative; border: 1px solid white; }
+        .modal-content { background: #000020; padding: 20px; border-radius: 12px; width: 320px; text-align: center; border: 1px solid white; }
         .btn { padding: 10px; width: 100%; border: 1px solid white; border-radius: 6px; cursor: pointer; margin-top: 8px; color: white; background: #000020; }
-        
-        .custom-file-upload { display: inline-block; padding: 10px; background: #000020; border: 1px solid white; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 10px; }
-        .close-btn { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px; }
     </style>
 </head>
 <body>
@@ -39,7 +38,7 @@
         <div onclick="window.location.href='/'" style="color:white; cursor:pointer;"><i class="fa-solid fa-right-from-bracket"></i></div>
     </nav>
 
-    <div id="chats-panel" class="panel">
+    <div id="chats-panel" class="panel active">
         <h3>Mensajería</h3>
         <div id="lista-chats" class="empty-msg">Sin chats recientes</div>
     </div>
@@ -52,19 +51,8 @@
     <div id="perfilModal" class="modal">
         <div class="modal-content">
             <h3>Mi Perfil</h3>
-            <label class="custom-file-upload">
-                <input type="file" id="inputFoto" accept="image/*" style="display:none" onchange="previewFile()">
-                Cambiar foto de perfil
-            </label>
-            <button class="btn" onclick="verFotoPerfil()">Ver foto de perfil</button>
-            <button class="btn" onclick="eliminarFoto()">Eliminar foto de perfil</button>
             <button class="btn" onclick="document.getElementById('perfilModal').style.display='none'">Cerrar</button>
         </div>
-    </div>
-
-    <div id="viewPhotoModal" class="modal">
-        <span class="close-btn" onclick="document.getElementById('viewPhotoModal').style.display='none'">&times;</span>
-        <img id="imgVistaPrevia" src="" style="max-width: 80%; border-radius: 8px;">
     </div>
 
     <script>
@@ -73,33 +61,34 @@
             document.getElementById(id).classList.add('active');
         }
 
-        window.onload = () => {
-            const savedPhoto = localStorage.getItem('userAvatar');
-            if (savedPhoto) document.getElementById('avatarPrincipal').src = savedPhoto;
-        }
+        // Función que comunica con tu server.js
+        async function cargarDatos() {
+            try {
+                // Aquí el front pregunta al servidor por los chats
+                const resChats = await fetch('/api/chats'); 
+                const chats = await resChats.json();
+                
+                const contChats = document.getElementById('lista-chats');
+                if(chats.length > 0) {
+                    contChats.innerHTML = '';
+                    chats.forEach(c => contChats.innerHTML += `<div class="item-list"><i class="fa-solid fa-arrow-left"></i> ${c.nombre}</div>`);
+                }
 
-        function previewFile() {
-            const file = document.getElementById('inputFoto').files[0];
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const dataUrl = reader.result;
-                document.getElementById('avatarPrincipal').src = dataUrl;
-                localStorage.setItem('userAvatar', dataUrl);
+                // Aquí el front pregunta al servidor por los grupos
+                const resGrupos = await fetch('/api/grupos');
+                const grupos = await resGrupos.json();
+                
+                const contGrupos = document.getElementById('lista-grupos');
+                if(grupos.length > 0) {
+                    contGrupos.innerHTML = '';
+                    grupos.forEach(g => contGrupos.innerHTML += `<div class="item-list"><i class="fa-solid fa-arrow-left"></i> ${g.nombre}</div>`);
+                }
+            } catch (e) {
+                console.log("Esperando conexión con el servidor...");
             }
-            if (file) reader.readAsDataURL(file);
         }
 
-        function verFotoPerfil() {
-            document.getElementById('imgVistaPrevia').src = document.getElementById('avatarPrincipal').src;
-            document.getElementById('perfilModal').style.display = 'none';
-            document.getElementById('viewPhotoModal').style.display = 'flex';
-        }
-
-        function eliminarFoto() {
-            localStorage.removeItem('userAvatar');
-            document.getElementById('avatarPrincipal').src = 'https://via.placeholder.com/150';
-            alert("Foto eliminada");
-        }
+        window.onload = cargarDatos;
     </script>
 </body>
 </html>
