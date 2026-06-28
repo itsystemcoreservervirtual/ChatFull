@@ -111,7 +111,7 @@
             
             const contenedor = document.getElementById('lista-chats');
             if (chats && chats.length > 0) {
-                contenedor.innerHTML = ''; // Limpia el mensaje "Sin chats"
+                contenedor.innerHTML = ''; 
                 chats.forEach(chat => {
                     contenedor.innerHTML += `<div class="item-list">${chat.nombre}</div>`;
                 });
@@ -121,7 +121,7 @@
         }
     }
     
-    // Ejecutar al cargar la página
+   
     window.onload = cargarChats;
 </script>
 </body>
