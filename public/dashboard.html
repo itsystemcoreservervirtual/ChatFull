@@ -1,35 +1,176 @@
-<div class="sidebar">
-    
-    <div class="sidebar-top">
-        <div class="profile-section">
-            <img src="tu-perfil.png" alt="Perfil" class="profile-img">
-        </div>
+const express = require('express');
+const mongoose = require('mongoose');
+const User = require('./models/User');
+
+const app = express();
+app.use(express.json());
+app.use(express.static('public'));
+
+mongoose.connect('mongodb://localhost:27017/chatfull')
+    .then(() => console.log('Conectado a MongoDB'))
+    .catch(err => console.error('Error de conexión:', err));
+
+// ==========================================
+// 1. RUTA DE REGISTRO (EVITA DUPLICADOS)
+// ==========================================
+app.post('/api/register', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        const existe = await User.findOne({ username: username.toLowerCase() });
+        if (existe) {
+            return res.status(400).json({ mensaje: 'Este nombre de usuario ya está registrado.' });
+        }
+
+        const nuevoUsuario = new User({ 
+            username: username.toLowerCase(), 
+            password 
+        });
         
-        <div class="navigation-buttons">
-            <button id="btnChats" class="nav-btn" title="Chats Individuales">
-                <i class="icon-chat"></i> 💬
-            </button>
-            <button id="btnGrupos" class="nav-btn" title="Grupos">
-                <i class="icon-group"></i> 👥
-            </button>
-        </div>
-    </div>
+        await nuevoUsuario.save();
+        return res.status(201).json({ mensaje: '¡Usuario creado con éxito!' });
 
-    <div class="sidebar-bottom">
-        <div class="chat-list-section">
-            <h3>Mensajería</h3>
-            <div id="lista-chats-individuales">
-                <p class="no-chats">Sin chats recientes</p>
-            </div>
-            
-            <h3>Grupos</h3>
-            <div id="lista-chats-grupos">
-                <p class="no-chats">Sin grupos activos</p>
-            </div>
-        </div>
-    </div>
+    } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({ mensaje: 'El usuario ya existe (Error de duplicado).' });
+        }
+        console.error(error);
+        return res.status(500).json({ mensaje: 'Error interno al registrar.' });
+    }
+});
 
-    <button id="btnSalir" class="logout-btn">
-        <span>➡️ Salir</span>
-    </button>
-</div>>
+// ==========================================
+// 2. RUTA DE LOGIN (BLOQUEA SI NO EXISTE)
+// ==========================================
+app.post('/api/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        const usuario = await User.findOne({ username: username.toLowerCase() });
+
+        if (!usuario) {
+            return res.status(401).json({ mensaje: 'Acceso denegado. El usuario no se encuentra registrado.' });
+        }
+
+        if (usuario.password !== password) {
+            return res.status(401).json({ mensaje: 'Contraseña incorrecta.' });
+        }
+
+        return res.status(200).json({ mensaje: '¡Credenciales correctas! Entrando...' });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ mensaje: 'Error interno al iniciar sesión.' });
+    }
+});
+
+// =========================================================================
+// 3. NUEVA ESTRUCTURA INYECTADA: INTERFAZ COLOR NOCHE Y BOTONES ORDENADOS
+// =========================================================================
+app.get('/dashboard', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>ChatFull Dashboard</title>
+            <style>
+                /* COLOR NOCHE PROFUNDA GENERAL */
+                body {
+                    background-color: #0b0f19; 
+                    color: #f8fafc;
+                    font-family: sans-serif;
+                    margin: 0;
+                    display: flex;
+                }
+                /* BARRA LATERAL NOCHE */
+                .sidebar {
+                    width: 250px;
+                    height: 100vh;
+                    background-color: #111827;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    border-right: 1px solid #1f2937;
+                }
+                /* BOTONES EN LA PARTE SUPERIOR */
+                .top-navigation {
+                    padding: 15px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                }
+                .nav-btn {
+                    background-color: #1f2937;
+                    color: white;
+                    border: none;
+                    padding: 10px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 14px;
+                }
+                .nav-btn:hover {
+                    background-color: #374151;
+                }
+                /* CHATS Y GRUPOS EN LA PARTE DE ABAJO */
+                .bottom-lists {
+                    flex-grow: 1;
+                    padding: 15px;
+                    overflow-y: auto;
+                }
+                h3 {
+                    font-size: 12px;
+                    color: #9ca3af;
+                    text-transform: uppercase;
+                    margin-top: 15px;
+                }
+                .chat-item {
+                    color: #6b7280;
+                    font-style: italic;
+                    font-size: 13px;
+                }
+                /* BOTÓN DE SALIR */
+                .btn-salir {
+                    background: transparent;
+                    color: #9ca3af;
+                    border: none;
+                    padding: 15px;
+                    cursor: pointer;
+                    border-top: 1px solid #1f2937;
+                    font-size: 14px;
+                }
+                .btn-salir:hover {
+                    color: #ef4444;
+                }
+            </style>
+        </head>
+        <body>
+
+            <div class="sidebar">
+                <div class="top-navigation">
+                    <div style="font-weight: bold; margin-bottom: 10px; color: #38bdf8;">ChatFull</div>
+                    <button class="nav-btn">💬 Chat Individual</button>
+                    <button class="nav-btn">👥 Grupos</button>
+                </div>
+
+                <div class="bottom-lists">
+                    <h3>Chats Recientes</h3>
+                    <div class="chat-item">Sin chats recientes</div>
+
+                    <h3>Mis Grupos</h3>
+                    <div class="chat-item">Sin grupos activos</div>
+                </div>
+
+                <button class="btn-salir" onclick="location.href='/'">➡️ Salir</button>
+            </div>
+
+            <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; color: #4b5563;">
+                Selecciona un chat para empezar a mensajear
+            </div>
+
+        </body>
+        </html>
+    `);
+});
+
+app.listen(3000, () => console.log('Servidor activo en el puerto 3000'));
