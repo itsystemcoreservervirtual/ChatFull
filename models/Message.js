@@ -3,37 +3,37 @@ const mongoose = require('mongoose');
 const messageSchema = new mongoose.Schema({
     sender: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Quién envía el mensaje
+        ref: 'User', 
         required: true
     },
     recipient: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Quién lo recibe (si es chat privado)
+        ref: 'User', 
         required: false
     },
     group: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Group', // A qué grupo pertenece (si es chat grupal)
+        ref: 'Group', 
         required: false
     },
     text: {
-        type: String, // Texto del mensaje sin límite de caracteres
+        type: String, 
         trim: true
     },
     image: {
-        type: String, // Aquí se guarda la URL de la imagen si envían una
+        type: String, 
         required: false
     },
     hiddenFor: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User' // Lista de usuarios que borraron el mensaje "para mí"
+        ref: 'User' 
     }],
     isDeletedEveryone: {
         type: Boolean,
-        default: false // Cambia a true si borran el mensaje "para todos"
+        default: false 
     }
 }, {
-    timestamps: true // Guarda la fecha y hora exacta del envío del mensaje o foto
+    timestamps: true 
 });
 
 module.exports = mongoose.model('Message', messageSchema);
