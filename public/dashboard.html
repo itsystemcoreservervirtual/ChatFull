@@ -994,23 +994,22 @@
             document.getElementById('chat-header-bar').style.display = 'none';
             document.getElementById('chat-input-controls').style.display = 'none';
         }
+        
+async function enviarMensaje() {
+    const input = document.getElementById('message-input');
+    if (!input.value.trim()) return;
 
-        function enviarMensaje() {
-            const input = document.getElementById('message-input');
-            const texto = input.value.trim();
-            if (!texto) return;
+    // Esto envía el mensaje a tu servidor intermedio
+    // Cambia 'http://localhost:3000' por tu URL de Render cuando despliegues
+    await fetch('https://chatfriends-akg6.onrender.com/dashboard.html/guardar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texto: input.value })
+    });
 
-            document.getElementById('chat-body').insertAdjacentHTML('beforeend', `
-                <div class="message sent">
-                    <div class="msg-bubble">
-                        <div>${texto}</div>
-                        <div class="msg-time">${obtenerHoraActual()}</div>
-                    </div>
-                </div>
-            `);
-            input.value = "";
-            document.getElementById('chat-body').scrollTop = document.getElementById('chat-body').scrollHeight;
-        }
+    input.value = '';
+    cargarMensajes(); // Esta función debe actualizar la lista llamando a /obtener
+}
 
         function checkEnter(event) {
             if (event.key === 'Enter') enviarMensaje();
