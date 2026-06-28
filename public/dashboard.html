@@ -3,33 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Chat</title>
+    <title>Dashboard - Chat Oscuro</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
             display: flex;
             height: 100vh;
-            background-color: #f0f2f5;
+            background-color: #121212;
+            color: #ffffff;
+            overflow: hidden;
         }
 
-        /* --- BARRA LATERAL IZQUIERDA --- */
+        /* --- CONTENEDORES PRINCIPALES --- */
         .sidebar {
-            width: 300px;
-            border-right: 2px solid #000;
+            width: 320px;
+            border-right: 2px solid #333;
             display: flex;
             flex-direction: column;
-            background-color: #fff;
+            background-color: #1e1e1e;
         }
 
+        .chat-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #141414;
+            position: relative;
+        }
+
+        /* --- BARRA LATERAL (IZQUIERDA) --- */
         .header-sidebar {
             padding: 15px;
-            border-bottom: 2px solid #000;
+            border-bottom: 2px solid #333;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -42,31 +53,41 @@
             gap: 5px;
         }
 
+        .user-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+
         .avatar {
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            border: 2px solid #000;
+            border: 2px solid #555;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 20px;
-            background-color: #e1e1e1;
+            font-size: 18px;
+            color: #fff;
+            text-transform: uppercase;
+            user-select: none;
         }
 
-        /* Menú Hamburguesa (3 líneas) */
+        /* Menú superior de 3 líneas */
         .menu-btn {
             cursor: pointer;
             display: flex;
             flex-direction: column;
             gap: 4px;
+            padding: 5px;
         }
 
         .menu-btn div {
-            width: 25px;
+            width: 24px;
             height: 3px;
-            background-color: #000;
+            background-color: #ffffff;
+            border-radius: 2px;
         }
 
         .dropdown-menu {
@@ -74,9 +95,10 @@
             position: absolute;
             right: 15px;
             top: 60px;
-            background: white;
-            border: 1px solid #000;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
             z-index: 10;
         }
 
@@ -87,81 +109,130 @@
             width: 100%;
             text-align: left;
             cursor: pointer;
+            color: #fff;
         }
 
         .dropdown-menu button:hover {
-            background-color: #f0f0f0;
+            background-color: #3a3a3a;
         }
 
-        /* Bloques de Contenido (Chats y Grupos) */
+        /* Listas de Chats y Grupos */
         .section-box {
-            border: 2px solid #000;
+            border: 2px solid #333;
             margin: 10px;
             padding: 10px;
             flex-grow: 1;
             overflow-y: auto;
+            background-color: #1a1a1a;
+            border-radius: 6px;
         }
 
         .section-title {
             font-weight: bold;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #888;
             margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
+        .chat-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
         .chat-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
+            gap: 12px;
             cursor: pointer;
+            padding: 6px;
+            border-radius: 4px;
+            transition: background 0.2s;
         }
 
-        /* Sección Reloj Hora Real */
+        .chat-item:hover {
+            background-color: #2b2b2b;
+        }
+
+        /* Reloj en Tiempo Real */
         .real-time {
             text-align: center;
             font-size: 14px;
-            padding: 5px;
+            padding: 8px;
             font-weight: bold;
-            border-top: 1px solid #000;
-            border-bottom: 1px solid #000;
+            border-top: 2px solid #333;
+            border-bottom: 2px solid #333;
+            background-color: #161616;
+            color: #00ff66;
         }
 
-        /* Cerrar Sesión (Solo texto con flecha) */
+        /* Cerrar Sesión Inferior Izquierda */
         .logout-section {
             padding: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
             cursor: pointer;
-            margin-top: auto;
-            border-top: 2px solid #000;
+            border-top: 2px solid #333;
+            transition: background 0.2s;
+        }
+
+        .logout-section:hover {
+            background-color: #2a1a1a;
         }
 
         .arrow-icon {
             font-size: 20px;
-            font-weight: bold;
         }
 
-        /* --- ÁREA DEL CHAT (DERECHA) --- */
-        .chat-area {
-            flex-grow: 1;
+        /* --- ÁREA DE CHAT (DERECHA) --- */
+        .status-header-container {
+            border-bottom: 2px solid #333;
+            background-color: #1e1e1e;
             display: flex;
             flex-direction: column;
-            background-color: #fafafa;
+            padding: 10px 15px;
         }
 
-        /* Barra superior para Estado del usuario */
+        .status-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        /* Estado del usuario centrado */
         .status-bar {
-            border-bottom: 2px solid #000;
-            padding: 15px;
+            flex-grow: 1;
+            text-align: center;
             font-weight: bold;
-            background-color: #fff;
-            min-height: 50px;
+            font-size: 15px;
+            color: #e0e0e0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            padding: 0 10px;
         }
 
-        /* Cuerpo de conversación */
+        .chat-partner-name {
+            font-size: 13px;
+            color: #aaa;
+            margin-top: 4px;
+        }
+
+        /* Cuerpo del chat */
         .chat-body {
             flex-grow: 1;
             padding: 20px;
@@ -171,12 +242,12 @@
             gap: 15px;
         }
 
-        /* Globos de Mensaje */
+        /* Burbujas de Mensajes */
         .message {
             display: flex;
             align-items: flex-end;
             gap: 10px;
-            max-width: 60%;
+            max-width: 75%;
         }
 
         .message.received {
@@ -189,67 +260,180 @@
         }
 
         .msg-bubble {
-            border: 2px solid #000;
-            border-radius: 15px;
-            padding: 10px 15px;
-            background-color: #fff;
+            border: 2px solid #444;
+            border-radius: 14px;
+            padding: 10px 14px;
+            background-color: #222;
+            word-break: break-word;
         }
 
         .message.sent .msg-bubble {
-            background-color: #e3efff;
+            background-color: #1f3a52;
+            border-color: #2b567a;
         }
 
         .msg-time {
             font-size: 10px;
-            color: #666;
+            color: #888;
             margin-top: 5px;
             text-align: right;
         }
 
-        /* Input inferior */
+        /* --- BARRA DE ENTRADA INFERIOR --- */
         .input-bar {
-            border-top: 2px solid #000;
+            border-top: 2px solid #333;
             padding: 15px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            background-color: #fff;
+            gap: 12px;
+            background-color: #1e1e1e;
         }
 
         .input-bar input {
             flex-grow: 1;
-            padding: 10px;
-            border: 2px solid #000;
-            border-radius: 20px;
+            padding: 12px 16px;
+            border: 2px solid #444;
+            border-radius: 24px;
             outline: none;
+            background-color: #121212;
+            color: #fff;
+            font-size: 14px;
         }
 
-        .action-buttons {
+        .right-controls {
             display: flex;
             flex-direction: column;
-            gap: 5px;
             align-items: center;
+            gap: 6px;
         }
 
         .circle-btn {
-            width: 35px;
-            height: 35px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            border: 2px solid #000;
-            background: white;
+            border: 2px solid #444;
+            background: #252525;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 18px;
+            color: #fff;
+            transition: background 0.2s;
+        }
+
+        .circle-btn:hover {
+            background: #333;
         }
 
         .arrow-btn {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 28px;
+            color: #00ff66;
             cursor: pointer;
             line-height: 1;
+        }
+
+        /* --- VENTANA EMERGENTE (MODAL GRUPOS) --- */
+        .modal-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-box {
+            background: #222;
+            border: 2px solid #444;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .modal-box h3 {
+            font-size: 16px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .group-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal-box input[type="text"] {
+            flex-grow: 1;
+            padding: 8px;
+            background: #121212;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        .modal-users-list {
+            max-height: 180px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 5px 0;
+        }
+
+        .modal-user-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #2a2a2a;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .modal-user-item button {
+            background: #1f3a52;
+            border: 1px solid #2b567a;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .modal-user-item button.added {
+            background: #2e7d32;
+            border-color: #388e3c;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-main {
+            background: #00ff66;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #444;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -258,8 +442,8 @@
     <div class="sidebar">
         <div class="header-sidebar">
             <div class="user-profile">
-                <span style="font-size: 12px;">nombre de usuario</span>
-                <div class="avatar" id="user-avatar">U</div>
+                <span id="current-username" class="user-name">Cargando...</span>
+                <div class="avatar" id="user-avatar">-</div>
             </div>
             
             <div class="menu-btn" onclick="toggleMenu()">
@@ -274,14 +458,7 @@
 
         <div class="section-box">
             <div class="section-title">chats privados</div>
-            <div class="chat-item">
-                <div class="avatar">A</div>
-                <span>Alejandro Silva</span>
-            </div>
-            <div class="chat-item">
-                <div class="avatar">M</div>
-                <span>María López</span>
-            </div>
+            <div class="chat-list" id="private-chats-container"></div>
         </div>
 
         <div class="real-time" id="live-clock">00:00:00 AM</div>
@@ -289,14 +466,9 @@
         <div class="section-box">
             <div class="section-title">
                 <span>grupos</span>
-                <span style="font-size: 11px; cursor:pointer; text-decoration: underline;" onclick="crearGrupo()">crear grupo</span>
+                <span style="font-size: 11px; cursor:pointer; text-decoration: underline; color: #00ff66;" onclick="abrirModalGrupo()">crear grupo</span>
             </div>
-            <div id="groups-container">
-                <div class="chat-item">
-                    <div class="avatar">D</div>
-                    <span>Desarrollo Web</span>
-                </div>
-            </div>
+            <div class="chat-list" id="groups-container"></div>
         </div>
 
         <div class="logout-section" onclick="cerrarSesion()">
@@ -306,42 +478,88 @@
     </div>
 
     <div class="chat-area">
-        <div class="status-bar" id="status-display">estado del usuario: Disponible</div>
+        <div class="status-header-container">
+            <div class="status-top-row">
+                <button class="back-btn" onclick="retroceder()" title="Retroceder">⬅</button>
+                <div class="status-bar" id="status-display">estado del usuario: Disponible</div>
+                <div style="width: 24px;"></div> </div>
+            <div class="chat-partner-name" id="chat-partner-title">nombre del usuario</div>
+        </div>
 
-        <div class="chat-body" id="chat-body">
-            <span style="font-size: 12px; color: gray;">nombre del usuario</span>
-            <div class="message received">
-                <div class="avatar">A</div>
-                <div class="msg-bubble">
-                    <div>¡Hola! ¿Cómo vas con el desarrollo del diseño?</div>
-                    <div class="msg-time">10:15 AM</div>
-                </div>
+        <div class="chat-body" id="chat-body"></div>
+
+        <div class="input-bar">
+            <button class="circle-btn" onclick="abrirEmojis()" title="Insertar Emoji">😀</button>
+            
+            <input type="text" id="message-input" placeholder="escriba su mensaje ......" onkeypress="checkEnter(event)">
+            
+            <div class="right-controls">
+                <button class="circle-btn" onclick="grabarAudio()" title="Grabar audio de voz">🎙️</button>
+                <button class="arrow-btn" onclick="enviarMensaje()" title="Enviar mensaje">⇧</button>
             </div>
         </div>
 
-        <div class="input-bar">
-            <div class="avatar" id="input-user-avatar">U</div>
-            <input type="text" id="message-input" placeholder="escriba su mensaje ......" onkeypress="checkEnter(event)">
-            
-            <div class="action-buttons">
-                <button class="circle-btn" onclick="enviarAudio()" title="Enviar audio de voz">🎙️</button>
-                <button class="arrow-btn" onclick="enviarMensaje()" title="Enviar mensaje">⇧</button>
+        <div class="modal-overlay" id="group-modal">
+            <div class="modal-box">
+                <h3>Crear Nuevo Grupo</h3>
+                <div class="group-input-row">
+                    <input type="text" id="new-group-name" placeholder="Nombre del grupo">
+                </div>
+                <p style="font-size: 12px; color: #888;">Selecciona miembros para agregar:</p>
+                <div class="modal-users-list" id="modal-users-container"></div>
+                <div class="modal-actions">
+                    <button class="btn-cancel" onclick="cerrarModalGrupo()">Cancelar</button>
+                    <button class="btn-main" onclick="confirmarCrearGrupo()">crear grupo</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Puedes cambiar este nombre por el que captes desde tu pantalla de login (index.html)
-        const nombreUsuarioLogueado = "Usuario Test"; 
-        
+        // Simulación de Base de Datos de Usuarios Registrados
+        const usuariosRegistrados = [
+            "Alejandro Silva", "Maria Lopez", "Carlos Perez", "Daniela Gomez", "Sebastian Ruiz"
+        ];
+
+        // Captura el usuario logueado real del localStorage
+        const nombreUsuarioLogueado = localStorage.getItem("username") || "Usuario Desconocido"; 
+        let integrantesGrupoSeleccionados = [];
+
         window.onload = function() {
-            const inicial = nombreUsuarioLogueado.charAt(0).toUpperCase();
-            document.getElementById('user-avatar').innerText = inicial;
-            document.getElementById('input-user-avatar').innerText = inicial;
+            // Inicializar datos del Perfil
+            document.getElementById('current-username').innerText = nombreUsuarioLogueado;
+            document.getElementById('user-avatar').innerText = nombreUsuarioLogueado.charAt(0);
+            document.getElementById('user-avatar').style.backgroundColor = generarColorAleatorio();
+
+            // Cargar estado persistente
+            const estadoGuardado = localStorage.getItem("userStatus") || "Disponible";
+            document.getElementById('status-display').innerText = `estado del usuario: ${estadoGuardado}`;
+
+            // Renderizar lista de Chats Privados con iniciales dinámicas y colores aleatorios
+            const privateContainer = document.getElementById('private-chats-container');
+            usuariosRegistrados.forEach(user => {
+                if(user !== nombreUsuarioLogueado) {
+                    privateContainer.insertAdjacentHTML('beforeend', `
+                        <div class="chat-item" onclick="cambiarChatActivo('${user}')">
+                            <div class="avatar" style="background-color: ${generarColorAleatorio()}">${user.charAt(0)}</div>
+                            <span>${user}</span>
+                        </div>
+                    `);
+                }
+            });
+
+            // Reloj en tiempo real continuo
             actualizarReloj();
             setInterval(actualizarReloj, 1000);
         };
 
+        // Generador de colores aleatorios estables para modo oscuro
+        function generarColorAleatorio() {
+            const hue = Math.floor(Math.random() * 360);
+            return `hsl(${hue}, 60%, 40%)`;
+        }
+
+        // Reloj en tiempo real
         function actualizarReloj() {
             const ahora = new Date();
             let horas = ahora.getHours();
@@ -351,9 +569,7 @@
             
             horas = horas % 12;
             horas = horas ? horas : 12; 
-            const horasStr = String(horas).padStart(2, '0');
-
-            document.getElementById('live-clock').innerText = `${horasStr}:${minutos}:${segundos} ${ampm}`;
+            document.getElementById('live-clock').innerText = `${String(horas).padStart(2, '0')}:${minutos}:${segundos} ${ampm}`;
         }
 
         function obtenerHoraActual() {
@@ -374,25 +590,76 @@
         function promptAgregarEstado() {
             const nuevoEstado = prompt("Escribe tu nuevo estado:");
             if (nuevoEstado !== null && nuevoEstado.trim() !== "") {
-                document.getElementById('status-display').innerText = `estado del usuario: ${nuevoEstado}`;
+                localStorage.setItem("userStatus", nuevoEstado.trim());
+                document.getElementById('status-display').innerText = `estado del usuario: ${nuevoEstado.trim()}`;
             }
             toggleMenu();
         }
 
-        function crearGrupo() {
-            const nombreGrupo = prompt("Escribe el nombre del nuevo grupo:");
-            if (nombreGrupo !== null && nombreGrupo.trim() !== "") {
-                const inicialGrupo = nombreGrupo.charAt(0).toUpperCase();
-                const container = document.getElementById('groups-container');
-                
-                const grupoHTML = `
-                    <div class="chat-item">
-                        <div class="avatar">${inicialGrupo}</div>
-                        <span>${nombreGrupo}</span>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', grupoHTML);
+        // Ventana Emergente de Grupos Completa
+        function abrirModalGrupo() {
+            integrantesGrupoSeleccionados = [];
+            const container = document.getElementById('modal-users-container');
+            container.innerHTML = '';
+            
+            usuariosRegistrados.forEach((user, idx) => {
+                if(user !== nombreUsuarioLogueado) {
+                    container.insertAdjacentHTML('beforeend', `
+                        <div class="modal-user-item">
+                            <span>${user}</span>
+                            <button id="btn-add-${idx}" onclick="agregarUsuarioAGrupo('${user}', ${idx})">Agregar</button>
+                        </div>
+                    `);
+                }
+            });
+            document.getElementById('group-modal').style.display = 'flex';
+        }
+
+        function cerrarModalGrupo() {
+            document.getElementById('group-modal').style.display = 'none';
+        }
+
+        function agregarUsuarioAGrupo(usuario, idx) {
+            const btn = document.getElementById(`btn-add-${idx}`);
+            if (!integrantesGrupoSeleccionados.includes(usuario)) {
+                integrantesGrupoSeleccionados.push(usuario);
+                btn.innerText = "Agregado ✓";
+                btn.classList.add('added');
             }
+        }
+
+        function confirmarCrearGrupo() {
+            const inputNombre = document.getElementById('new-group-name');
+            const nombreGrupo = inputNombre.value.trim();
+            
+            if (nombreGrupo === "") {
+                alert("Por favor ingresa un nombre para el grupo.");
+                return;
+            }
+
+            const container = document.getElementById('groups-container');
+            const inicial = nombreGrupo.charAt(0).toUpperCase();
+            
+            container.insertAdjacentHTML('beforeend', `
+                <div class="chat-item" onclick="cambiarChatActivo('${nombreGrupo}')">
+                    <div class="avatar" style="background-color: ${generarColorAleatorio()}">${inicial}</div>
+                    <span>${nombreGrupo}</span>
+                </div>
+            `);
+
+            inputNombre.value = '';
+            cerrarModalGrupo();
+        }
+
+        // Controladores de Chat Activo e Interfaz
+        function cambiarChatActivo(nombre) {
+            document.getElementById('chat-partner-title').innerText = nombre;
+            document.getElementById('chat-body').innerHTML = `<span style="font-size:12px; color:gray;">Iniciaste conversación con ${nombre}</span>`;
+        }
+
+        function retroceder() {
+            document.getElementById('chat-partner-title').innerText = "nombre del usuario";
+            document.getElementById('chat-body').innerHTML = "";
         }
 
         function enviarMensaje() {
@@ -404,50 +671,46 @@
                 const hora = obtenerHoraActual();
                 const inicial = nombreUsuarioLogueado.charAt(0).toUpperCase();
 
-                const mensajeHTML = `
+                chatBody.insertAdjacentHTML('beforeend', `
                     <div class="message sent">
-                        <div class="avatar">${inicial}</div>
                         <div class="msg-bubble">
                             <div>${texto}</div>
                             <div class="msg-time">${hora}</div>
                         </div>
                     </div>
-                `;
-                
-                chatBody.insertAdjacentHTML('beforeend', mensajeHTML);
+                `);
                 input.value = "";
                 chatBody.scrollTop = chatBody.scrollHeight;
             }
         }
 
         function checkEnter(event) {
-            if (event.key === 'Enter') {
-                enviarMensaje();
-            }
+            if (event.key === 'Enter') enviarMensaje();
         }
 
-        function enviarAudio() {
+        function abrirEmojis() {
+            const emojis = ["😀", "😁", "😂", "🤣", "😃", "😄", "😅", "😆", "😉", "😊", "😋"," 🖕🏻","🤬","😎"];
+            const aleatorio = emojis[Math.floor(Math.random() * emojis.length)];
+            document.getElementById('message-input').value += aleatorio;
+        }
+
+        function grabarAudio() {
             const chatBody = document.getElementById('chat-body');
             const hora = obtenerHoraActual();
-            const inicial = nombreUsuarioLogueado.charAt(0).toUpperCase();
-
-            const audioHTML = `
+            chatBody.insertAdjacentHTML('beforeend', `
                 <div class="message sent">
-                    <div class="avatar">${inicial}</div>
                     <div class="msg-bubble">
-                        <div>🎙️ <i>Audio de voz enviado</i></div>
+                        <div>🎵 <i>Nota de voz enviada</i></div>
                         <div class="msg-time">${hora}</div>
                     </div>
                 </div>
-            `;
-            chatBody.insertAdjacentHTML('beforeend', audioHTML);
+            `);
             chatBody.scrollTop = chatBody.scrollHeight;
         }
 
-        // Redirección al index al cerrar sesión
         function cerrarSesion() {
-            alert("Sesión cerrada correctamente.");
-            window.location.href = "index.html"; 
+            localStorage.removeItem("userStatus");
+            window.location.href = "index.html";
         }
     </script>
 </body>
