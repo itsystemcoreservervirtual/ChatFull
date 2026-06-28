@@ -283,15 +283,20 @@
         .person-left .phone { left: 25px; animation: chatBounce 2s infinite ease-in-out; }
         .person-right .phone { right: 25px; animation: chatBounce 2s infinite ease-in-out 1s; }
 
-        .chat-cloud {
-            position: absolute;
-            background: #222;
-            border: 1px solid #444;
-            padding: 6px 10px;
-            border-radius: 10px;
-            font-size: 11px;
-            color: #aaa;
-        }
+        // NUEVO: Enviar a MongoDB
+async function enviarMensaje() {
+    const input = document.getElementById('message-input');
+    if (!input.value.trim()) return;
+
+    await fetch('http://localhost:3000/guardar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texto: input.value })
+    });
+
+    input.value = '';
+    cargarMensajes(); // Actualiza la lista
+}
 
         .cloud-left { top: 10px; left: 60px; }
         .cloud-right { top: 40px; right: 60px; }
