@@ -182,9 +182,9 @@
             background-color: #2a1a1a;
         }
 
-        /* --- CABECERA DE CHAT (OCULTA POR DEFECTO) --- */
+        /* --- CABECERA DE CHAT --- */
         .status-header-container {
-            display: none; /* Oculto inicialmente para no mostrar líneas en la bienvenida */
+            display: none;
             border-bottom: 2px solid #333;
             background-color: #1e1e1e;
             padding: 15px;
@@ -225,10 +225,7 @@
         /* PANTALLA BIENVENIDA INICIAL COMPLETA */
         .welcome-screen {
             position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            top: 0; bottom: 0; left: 0; right: 0;
             background-color: #141414;
             display: flex;
             flex-direction: column;
@@ -336,9 +333,24 @@
             text-align: right;
         }
 
-        /* --- BARRA DE ENTRADA INFERIOR (OCULTA POR DEFECTO) --- */
+        /* Estilo limpio para capturas pegadas en el chat */
+        .msg-image-content {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 4px;
+            cursor: pointer;
+            display: block;
+            border: 1px solid #444;
+            transition: opacity 0.2s;
+        }
+        .msg-image-content:hover {
+            opacity: 0.85;
+        }
+
+        /* --- HILERA / BARRA DE ENTRADA INFERIOR --- */
         .input-bar {
-            display: none; /* Oculto inicialmente para no mostrar líneas en la bienvenida */
+            display: none;
             border-top: 2px solid #333;
             padding: 15px;
             align-items: center;
@@ -408,6 +420,50 @@
             cursor: pointer;
             text-align: center;
             padding: 4px;
+        }
+
+        /* --- VENTANA EMERGENTE PARA CAPTURAS CON FONDO PAÑOSO --- */
+        .image-overlay-popup {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(15px); /* Efecto pañoso / borroso solicitado */
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-popup-content {
+            position: relative;
+            max-width: 85%;
+            max-height: 85%;
+        }
+
+        .image-popup-content img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 6px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.9);
+            border: 1px solid #555;
+        }
+
+        /* X en color rojo situada en la esquina superior derecha */
+        .top-close-x-btn {
+            position: absolute;
+            top: -45px;
+            right: -10px;
+            background: none;
+            border: none;
+            color: #ff3333; /* Color rojo */
+            font-size: 38px;
+            font-weight: bold;
+            cursor: pointer;
+            text-shadow: 0px 2px 4px rgba(0,0,0,0.8);
+            transition: color 0.2s;
+        }
+        .top-close-x-btn:hover {
+            color: #ff6666;
         }
 
         /* --- MODALES --- */
@@ -642,11 +698,18 @@
 <span onclick="insertarEmoji('😷')">😷</span>   
             </div>
             
-            <input type="text" id="message-input" placeholder="escriba su mensaje ......" onkeypress="checkEnter(event)">
+            <input type="text" id="message-input" placeholder="Mensaje......." onkeypress="checkEnter(event)" onpaste="manejarPegadoDeCaptura(event)">
             
             <div class="right-controls">
                 <button class="circle-btn" id="mic-btn" onclick="gestionarGrabacionAudio()">🎙️</button>
                 <button class="arrow-btn" onclick="enviarMensaje()">⇧</button>
+            </div>
+        </div>
+
+        <div class="image-overlay-popup" id="image-viewer-popup">
+            <div class="image-popup-content">
+                <button class="top-close-x-btn" onclick="cerrarVisualizadorImagen()">×</button>
+                <img id="popup-target-img" src="" alt="Captura de Pantalla Ampliada">
             </div>
         </div>
 
@@ -754,14 +817,9 @@
 
         function promptModificarEstado() {
             cerrarModal('menu-options-modal');
-            const nuevoEstado = prompt("Escribe tu nuevo estado (Máximo 70 letras):");
-            if (nuevoEstado !== null) {
-                let textoLimpio = nuevoEstado.trim();
-                if (textoLimpio === "") return;
-                if (textoLimpio.length > 70) {
-                    alert("El estado excede las 70 letras. Se acortará.");
-                    textoLimpio = textoLimpio.substring(0, 70);
-                }
+            const nuevoEstado = prompt("Escribe tu nuevo estado:");
+            if (nuevoEstado !== null && nuevoEstado.trim() !== "") {
+                let textoLimpio = nuevoEstado.trim().substring(0, 70);
                 localStorage.setItem("userStatus", textoLimpio);
                 document.getElementById('status-display').innerText = textoLimpio;
             }
@@ -777,18 +835,14 @@
             toggleEmojiPicker();
         }
 
-        /* --- CONTROL DE CHAT ACTIVO --- */
         function cambiarChatActivo(nombre) {
-            // Se oculta la pantalla de bienvenida y se muestran las barras de chat correspondientes
             document.getElementById('welcome-screen-placeholder').style.display = 'none';
             document.getElementById('chat-header-bar').style.display = 'flex';
             document.getElementById('chat-input-controls').style.display = 'flex';
-
             document.getElementById('chat-partner-title').innerText = nombre;
             document.getElementById('chat-body').innerHTML = '';
         }
 
-        /* --- BUSCADOR --- */
         function abrirModalBusqueda() {
             const container = document.getElementById('search-users-container');
             container.innerHTML = '';
@@ -809,16 +863,13 @@
             cerrarModal('search-modal');
             if(!listaChatsPrivadosActive.includes(nombre)) {
                 listaChatsPrivadosActive.push(nombre);
-                let borrados = JSON.parse(localStorage.getItem("deleted_chats")) || [];
-                localStorage.setItem("deleted_chats", JSON.stringify(borrados.filter(c => c !== nombre)));
                 renderizarChatsPrivados();
             }
             cambiarChatActivo(nombre);
         }
 
         function inicializarChatsPrivados() {
-            const borrados = JSON.parse(localStorage.getItem("deleted_chats")) || [];
-            listaChatsPrivadosActive = usuariosRegistradosSistema.filter(u => u !== nombreUsuarioLogueado && !borrados.includes(u));
+            listaChatsPrivadosActive = usuariosRegistradosSistema.filter(u => u !== nombreUsuarioLogueado);
         }
 
         function renderizarChatsPrivados() {
@@ -834,7 +885,6 @@
             });
         }
 
-        /* --- GRUPOS --- */
         function abrirModalGrupo() {
             const container = document.getElementById('group-members-selection-container');
             container.innerHTML = '';
@@ -871,8 +921,7 @@
             if (!nombre) return;
 
             let grupos = JSON.parse(localStorage.getItem("chat_groups")) || [];
-            const nuevoGrupo = { id: Date.now(), nombre: nombre, color: generarColorAleatorio() };
-            grupos.push(nuevoGrupo);
+            grupos.push({ id: Date.now(), nombre: nombre, color: generarColorAleatorio() });
             localStorage.setItem("chat_groups", JSON.stringify(grupos));
 
             renderizarGruposGuardados();
@@ -894,7 +943,6 @@
             });
         }
 
-        /* --- BORRADO --- */
         function abrirModalBorrar(tipo) {
             cerrarModal('menu-options-modal');
             const container = document.getElementById('delete-items-container');
@@ -926,19 +974,10 @@
         }
 
         function eliminarChatDefinitivo(nombreChat) {
-            let borrados = JSON.parse(localStorage.getItem("deleted_chats")) || [];
-            if(!borrados.includes(nombreChat)) {
-                borrados.push(nombreChat);
-                localStorage.setItem("deleted_chats", JSON.stringify(borrados));
-            }
             listaChatsPrivadosActive = listaChatsPrivadosActive.filter(c => c !== nombreChat);
             renderizarChatsPrivados();
             cerrarModal('delete-modal');
-            
-            // Regresa a la vista limpia de bienvenida
-            document.getElementById('welcome-screen-placeholder').style.display = 'flex';
-            document.getElementById('chat-header-bar').style.display = 'none';
-            document.getElementById('chat-input-controls').style.display = 'none';
+            resetearChatArea();
         }
 
         function eliminarGrupoDefinitivo(index) {
@@ -947,14 +986,15 @@
             localStorage.setItem("chat_groups", JSON.stringify(grupos));
             renderizarGruposGuardados();
             cerrarModal('delete-modal');
-            
-            // Regresa a la vista limpia de bienvenida
+            resetearChatArea();
+        }
+
+        function resetearChatArea() {
             document.getElementById('welcome-screen-placeholder').style.display = 'flex';
             document.getElementById('chat-header-bar').style.display = 'none';
             document.getElementById('chat-input-controls').style.display = 'none';
         }
 
-        /* --- ENVIAR MENSAJES Y AUDIO --- */
         function enviarMensaje() {
             const input = document.getElementById('message-input');
             const texto = input.value.trim();
@@ -976,6 +1016,39 @@
             if (event.key === 'Enter') enviarMensaje();
         }
 
+        /* --- CAPTURA DE PANTALLA MEDIANTE PEGADO DIRECTO (CTRL + V) --- */
+        function manejarPegadoDeCaptura(event) {
+            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf("image") !== -1) {
+                    const blobImagen = items[i].getAsFile();
+                    const urlImagen = URL.createObjectURL(blobImagen);
+                    
+                    // Se agrega el mensaje multimedia sin modificar visualmente la barra inferior
+                    document.getElementById('chat-body').insertAdjacentHTML('beforeend', `
+                        <div class="message sent">
+                            <div class="msg-bubble">
+                                <img src="${urlImagen}" class="msg-image-content" onclick="abrirVisualizadorImagen('${urlImagen}')" alt="Captura">
+                                <div class="msg-time">${obtenerHoraActual()}</div>
+                            </div>
+                        </div>
+                    `);
+                    document.getElementById('chat-body').scrollTop = document.getElementById('chat-body').scrollHeight;
+                    event.preventDefault(); // Evita inserciones de texto basura
+                }
+            }
+        }
+
+        /* --- CONTROLADORES DE LA VENTANA EMERGENTE CON FONDO PAÑOSO --- */
+        function abrirVisualizadorImagen(src) {
+            document.getElementById('popup-target-img').src = src;
+            document.getElementById('image-viewer-popup').style.display = 'flex';
+        }
+
+        function cerrarVisualizadorImagen() {
+            document.getElementById('image-viewer-popup').style.display = 'none';
+        }
+
         async function gestionarGrabacionAudio() {
             const micBtn = document.getElementById('mic-btn');
             if (!grabacionActiva) {
@@ -985,8 +1058,7 @@
                     audioChunks = [];
                     mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                     mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const audioUrl = URL.createObjectURL(new Blob(audioChunks, { type: 'audio/mp3' }));
                         document.getElementById('chat-body').insertAdjacentHTML('beforeend', `
                             <div class="message sent"><div class="msg-bubble"><audio src="${audioUrl}" controls></audio><div class="msg-time">${obtenerHoraActual()}</div></div></div>
                         `);
