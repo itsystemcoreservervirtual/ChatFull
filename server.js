@@ -23,7 +23,7 @@ app.get('/api/chats', async (req, res) => {
         res.status(500).json({ error: "Error al cargar" });
     }
 });
-// --- PUENTE PARA CARGAR CHATS ---
+
 app.get('/api/chats', async (req, res) => {
     try {
         const Chat = require('./models/Chat'); 
