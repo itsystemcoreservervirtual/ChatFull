@@ -64,10 +64,9 @@
             position: relative;
         }
 
-        /* Perfil alineado en una sola fila horizontal con el avatar */
         .user-profile {
             display: flex;
-            align-items: center; /* Alinea verticalmente en la misma fila */
+            align-items: center;
             gap: 12px;
             width: 80%;
         }
@@ -87,7 +86,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Reloj en tiempo real justo debajo del nombre */
         .real-time {
             font-size: 11px;
             font-weight: bold;
@@ -126,7 +124,6 @@
             border-radius: 2px;
         }
 
-        /* --- SECCIONES FLEX: 1 --- */
         .section-box {
             border: 2px solid #333;
             margin: 10px;
@@ -185,17 +182,16 @@
             background-color: #2a1a1a;
         }
 
-        /* --- CABECERA DE CHAT CORREGIDA --- */
+        /* --- CABECERA DE CHAT (OCULTA POR DEFECTO) --- */
         .status-header-container {
+            display: none; /* Oculto inicialmente para no mostrar líneas en la bienvenida */
             border-bottom: 2px solid #333;
             background-color: #1e1e1e;
             padding: 15px;
-            display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        /* Nombre del destinatario movido al lado izquierdo */
         .chat-partner-name {
             font-size: 14px;
             font-weight: bold;
@@ -207,7 +203,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Estado se mantiene al centro dinámico */
         .status-bar {
             flex-grow: 1;
             text-align: center;
@@ -216,18 +211,6 @@
             color: #e0e0e0;
             white-space: pre-wrap;
             word-break: break-word;
-        }
-
-        /* Nombre de tu propio usuario arriba a la derecha */
-        .status-right-space {
-            font-size: 14px;
-            font-weight: bold;
-            color: #00ff66;
-            width: 150px;
-            text-align: right;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .chat-body {
@@ -239,12 +222,13 @@
             gap: 15px;
         }
 
-        /* PANTALLA BIENVENIDA INICIAL */
+        /* PANTALLA BIENVENIDA INICIAL COMPLETA */
         .welcome-screen {
             position: absolute;
-            top: 70px; /* Debajo de la cabecera */
-            bottom: 70px; /* Arriba del input input */
-            left: 0; right: 0;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background-color: #141414;
             display: flex;
             flex-direction: column;
@@ -262,7 +246,6 @@
             font-weight: 600;
         }
 
-        /* Caricatura Vectorial CSS de Dos Personas Chateando */
         .illustration-box {
             display: flex;
             align-items: center;
@@ -353,11 +336,11 @@
             text-align: right;
         }
 
-        /* --- BARRA DE ENTRADA INFERIOR --- */
+        /* --- BARRA DE ENTRADA INFERIOR (OCULTA POR DEFECTO) --- */
         .input-bar {
+            display: none; /* Oculto inicialmente para no mostrar líneas en la bienvenida */
             border-top: 2px solid #333;
             padding: 15px;
-            display: flex;
             align-items: center;
             gap: 12px;
             background-color: #1e1e1e;
@@ -406,7 +389,6 @@
             justify-content: center;
         }
 
-        /* --- SELECTOR EMOJIS --- */
         .emoji-picker {
             display: none;
             position: absolute;
@@ -559,7 +541,6 @@
         <div class="section-box">
             <div class="section-title">
                 <span>grupos</span>
-                <span style="font-size: 11px; cursor:pointer; text-decoration: underline; color: #00ff66;" onclick="abrirModalGrupo()">crear grupo</span>
             </div>
             <div class="chat-list" id="groups-container"></div>
         </div>
@@ -587,19 +568,17 @@
             </div>
         </div>
 
-        <div class="status-header-container">
+        <div class="status-header-container" id="chat-header-bar">
             <div class="chat-partner-name" id="chat-partner-title">Selecciona un chat</div>
             <div class="status-bar" id="status-display">Disponible</div>
-            <div class="status-right-space" id="chat-right-username">Cargando...</div> 
         </div>
 
         <div class="chat-body" id="chat-body"></div>
 
-        <div class="input-bar">
+        <div class="input-bar" id="chat-input-controls">
             <button class="circle-btn" onclick="toggleEmojiPicker()">😀</button>
             <div class="emoji-picker" id="emoji-picker">
-            <span onclick="insertarEmoji('😀')">😀</span>
- <span onclick="insertarEmoji('😂')">😂</span>
+              <span onclick="insertarEmoji('😂')">😂</span>
  <span onclick="insertarEmoji('😊')">😊</span>
  <span onclick="insertarEmoji('🥰')">🥰</span>
  <span onclick="insertarEmoji('😘')">😘</span>
@@ -647,7 +626,7 @@
 <span onclick="insertarEmoji('👐')">👐</span>  
 <span onclick="insertarEmoji('🙌')">🙌</span>  
 <span onclick="insertarEmoji('🫦')">🫦</span>  
-<span onclick="insertarEmoji('👅')">🧎‍♀️‍➡️👅</span>  
+<span onclick="insertarEmoji('👅')">👅</span>  
 <span onclick="insertarEmoji('👁️')">👁️</span>  
 <span onclick="insertarEmoji('👀')">👀</span>  
 <span onclick="insertarEmoji('🤜')">🤜</span>  
@@ -660,8 +639,7 @@
 <span onclick="insertarEmoji('☝️')">☝️</span>  
 <span onclick="insertarEmoji('😎')">😎</span>  
 <span onclick="insertarEmoji('🤤')">🤤</span>  
-<span onclick="insertarEmoji('😷')">😷</span>  
-
+<span onclick="insertarEmoji('😷')">😷</span>   
             </div>
             
             <input type="text" id="message-input" placeholder="escriba su mensaje ......" onkeypress="checkEnter(event)">
@@ -678,6 +656,7 @@
                     <h3>Opciones del Sistema</h3>
                     <button class="close-x-btn" onclick="cerrarModal('menu-options-modal')">×</button>
                 </div>
+                <button class="btn-main" style="background:#00ff66; color:#000; margin-bottom: 5px;" onclick="cerrarModal('menu-options-modal'); abrirModalGrupo();">Crear Nuevo Grupo</button>
                 <button class="btn-main" style="background:#333; color:#fff; border: 1px solid #555;" onclick="promptModificarEstado()">Modificar Estado</button>
                 <button class="btn-main" style="background:#2b2b2b; color:#fff; border: 1px solid #555;" onclick="abrirModalBorrar('chat')">Borrar Chat Privado</button>
                 <button class="btn-main" style="background:#2b2b2b; color:#fff; border: 1px solid #555;" onclick="abrirModalBorrar('grupo')">Borrar Grupo Agregado</button>
@@ -721,16 +700,13 @@
     <script>
         const nombreUsuarioLogueado = localStorage.getItem("username") || "Usuario"; 
         let usuariosRegistradosSistema = ["Alejandro Silva", "Maria Lopez", "Carlos Mendoza", "Fernanda Gomez", "Juan Pérez"];
-        let listaChatsPrivadosActive = []; 
-
+        let listaChatsPrivadosActive = [];
         let mediaRecorder;
         let audioChunks = [];
         let grabacionActiva = false;
 
         window.onload = function() {
             document.getElementById('current-username').innerText = nombreUsuarioLogueado;
-            document.getElementById('chat-right-username').innerText = nombreUsuarioLogueado;
-            
             document.getElementById('user-avatar').innerText = nombreUsuarioLogueado.charAt(0);
             document.getElementById('user-avatar').style.backgroundColor = generarColorAleatorio();
 
@@ -755,7 +731,7 @@
             const minutos = String(ahora.getMinutes()).padStart(2, '0');
             const segundos = String(ahora.getSeconds()).padStart(2, '0');
             const ampm = horas >= 12 ? 'PM' : 'AM';
-            horas = horas % 12 || 12; 
+            horas = horas % 12 || 12;
             document.getElementById('live-clock').innerText = `${String(horas).padStart(2, '0')}:${minutos}:${segundos} ${ampm}`;
         }
 
@@ -801,11 +777,13 @@
             toggleEmojiPicker();
         }
 
-        /* --- CONTROL DE CHAT ACTIVO (OCULTA EL DIBUJO) --- */
+        /* --- CONTROL DE CHAT ACTIVO --- */
         function cambiarChatActivo(nombre) {
-            // Ocultar pantalla de bienvenida
+            // Se oculta la pantalla de bienvenida y se muestran las barras de chat correspondientes
             document.getElementById('welcome-screen-placeholder').style.display = 'none';
-            
+            document.getElementById('chat-header-bar').style.display = 'flex';
+            document.getElementById('chat-input-controls').style.display = 'flex';
+
             document.getElementById('chat-partner-title').innerText = nombre;
             document.getElementById('chat-body').innerHTML = '';
         }
@@ -956,7 +934,11 @@
             listaChatsPrivadosActive = listaChatsPrivadosActive.filter(c => c !== nombreChat);
             renderizarChatsPrivados();
             cerrarModal('delete-modal');
+            
+            // Regresa a la vista limpia de bienvenida
             document.getElementById('welcome-screen-placeholder').style.display = 'flex';
+            document.getElementById('chat-header-bar').style.display = 'none';
+            document.getElementById('chat-input-controls').style.display = 'none';
         }
 
         function eliminarGrupoDefinitivo(index) {
@@ -965,7 +947,11 @@
             localStorage.setItem("chat_groups", JSON.stringify(grupos));
             renderizarGruposGuardados();
             cerrarModal('delete-modal');
+            
+            // Regresa a la vista limpia de bienvenida
             document.getElementById('welcome-screen-placeholder').style.display = 'flex';
+            document.getElementById('chat-header-bar').style.display = 'none';
+            document.getElementById('chat-input-controls').style.display = 'none';
         }
 
         /* --- ENVIAR MENSAJES Y AUDIO --- */
