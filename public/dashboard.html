@@ -1,1 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Chat</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
 
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f0f2f5;
+        }
+
+        /* --- BARRA LATERAL IZQUIERDA --- */
+        .sidebar {
+            width: 300px;
+            border-right: 2px solid #000;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+        }
+
+        .header-sidebar {
+            padding: 15px;
+            border-bottom: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .user-profile {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            background-color: #e1e1e1;
+        }
+
+        /* Menú Hamburguesa (3 líneas) */
+        .menu-btn {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .menu-btn div {
+            width: 25px;
+            height: 3px;
+            background-color: #000;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 15px;
+            top: 60px;
+            background: white;
+            border: 1px solid #000;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .dropdown-menu button {
+            background: none;
+            border: none;
+            padding: 10px 15px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dropdown-menu button:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Bloques de Contenido (Chats y Grupos) */
+        .section-box {
+            border: 2px solid #000;
+            margin: 10px;
+            padding: 10px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        /* Sección Reloj Hora Real */
+        .real-time {
+            text-align: center;
+            font-size: 14px;
+            padding: 5px;
+            font-weight: bold;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+        }
+
+        /* Cerrar Sesión (Solo texto con flecha) */
+        .logout-section {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            margin-top: auto;
+            border-top: 2px solid #000;
+        }
+
+        .arrow-icon {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* --- ÁREA DEL CHAT (DERECHA) --- */
+        .chat-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fafafa;
+        }
+
+        /* Barra superior para Estado del usuario */
+        .status-bar {
+            border-bottom: 2px solid #000;
+            padding: 15px;
+            font-weight: bold;
+            background-color: #fff;
+            min-height: 50px;
+        }
+
+        /* Cuerpo de conversación */
+        .chat-body {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Globos de Mensaje */
+        .message {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            max-width: 60%;
+        }
+
+        .message.received {
+            align-self: flex-start;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .msg-bubble {
+            border: 2px solid #000;
+            border-radius: 15px;
+            padding: 10px 15px;
+            background-color: #fff;
+        }
+
+        .message.sent .msg-bubble {
+            background-color: #e3efff;
+        }
+
+        .msg-time {
+            font-size: 10px;
+            color: #666;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        /* Input inferior */
+        .input-bar {
+            border-top: 2px solid #000;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #fff;
+        }
+
+        .input-bar input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 2px solid #000;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .circle-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #000;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .arrow-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="header-sidebar">
+            <div class="user-profile">
+                <span style="font-size: 12px;">nombre de usuario</span>
+                <div class="avatar" id="user-avatar">U</div>
+            </div>
+            
+            <div class="menu-btn" onclick="toggleMenu()">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu">
+                <button onclick="promptAgregarEstado()">Agregar estado</button>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <div class="section-title">chats privados</div>
+            <div class="chat-item">
+                <div class="avatar">A</div>
+                <span>Alejandro Silva</span>
+            </div>
+            <div class="chat-item">
+                <div class="avatar">M</div>
+                <span>María López</span>
+            </div>
+        </div>
+
+        <div class="real-time" id="live-clock">00:00:00 AM</div>
+
+        <div class="section-box">
+            <div class="section-title">
+                <span>grupos</span>
+                <span style="font-size: 11px; cursor:pointer; text-decoration: underline;" onclick="crearGrupo()">crear grupo</span>
+            </div>
+            <div id="groups-container">
+                <div class="chat-item">
+                    <div class="avatar">D</div>
+                    <span>Desarrollo Web</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="logout-section" onclick="cerrarSesion()">
+            <span class="arrow-icon">⬅</span>
+            <span>cerrar sesion</span>
+        </div>
+    </div>
+
+    <div class="chat-area">
+        <div class="status-bar" id="status-display">estado del usuario: Disponible</div>
+
+        <div class="chat-body" id="chat-body">
+            <span style="font-size: 12px; color: gray;">nombre del usuario</span>
+            <div class="message received">
+                <div class="avatar">A</div>
+                <div class="msg-bubble">
+                    <div>¡Hola! ¿Cómo vas con el desarrollo del diseño?</div>
+                    <div class="msg-time">10:15 AM</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-bar">
+            <div class="avatar" id="input-user-avatar">U</div>
+            <input type="text" id="message-input" placeholder="escriba su mensaje ......" onkeypress="checkEnter(event)">
+            
+            <div class="action-buttons">
+                <button class="circle-btn" onclick="enviarAudio()" title="Enviar audio de voz">🎙️</button>
+                <button class="arrow-btn" onclick="enviarMensaje()" title="Enviar mensaje">⇧</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Puedes cambiar este nombre por el que captes desde tu pantalla de login (index.html)
+        const nombreUsuarioLogueado = "Usuario Test"; 
+        
+        window.onload = function() {
+            const inicial = nombreUsuarioLogueado.charAt(0).toUpperCase();
+            document.getElementById('user-avatar').innerText = inicial;
+            document.getElementById('input-user-avatar').innerText = inicial;
+            actualizarReloj();
+            setInterval(actualizarReloj, 1000);
+        };
+
+        function actualizarReloj() {
+            const ahora = new Date();
+            let horas = ahora.getHours();
+            const minutos = String(ahora.getMinutes()).padStart(2, '0');
+            const segundos = String(ahora.getSeconds()).padStart(2, '0');
+            const ampm = horas >= 12 ? 'PM' : 'AM';
+            
+            horas = horas % 12;
+            horas = horas ? horas : 12; 
+            const horasStr = String(horas).padStart(2, '0');
+
+            document.getElementById('live-clock').innerText = `${horasStr}:${minutos}:${segundos} ${ampm}`;
+        }
+
+        function obtenerHoraActual() {
+            const ahora = new Date();
+            let horas = ahora.getHours();
+            const minutos = String(ahora.getMinutes()).padStart(2, '0');
+            const ampm = horas >= 12 ? 'PM' : 'AM';
+            horas = horas % 12;
+            horas = horas ? horas : 12;
+            return `${String(horas).padStart(2, '0')}:${minutos} ${ampm}`;
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('dropdown-menu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function promptAgregarEstado() {
+            const nuevoEstado = prompt("Escribe tu nuevo estado:");
+            if (nuevoEstado !== null && nuevoEstado.trim() !== "") {
+                document.getElementById('status-display').innerText = `estado del usuario: ${nuevoEstado}`;
+            }
+            toggleMenu();
+        }
+
+        function crearGrupo() {
+            const nombreGrupo = prompt("Escribe el nombre del nuevo grupo:");
+            if (nombreGrupo !== null && nombreGrupo.trim() !== "") {
+                const inicialGrupo = nombreGrupo.charAt(0).toUpperCase();
+                const container = document.getElementById('groups-container');
+                
+                const grupoHTML = `
+                    <div class="chat-item">
+                        <div class="avatar">${inicialGrupo}</div>
+                        <span>${nombreGrupo}</span>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', grupoHTML);
+            }
+        }
+
+        function enviarMensaje() {
+            const input = document.getElementById('message-input');
+            const texto = input.value.trim();
+            
+            if (texto !== "") {
+                const chatBody = document.getElementById('chat-body');
+                const hora = obtenerHoraActual();
+                const inicial = nombreUsuarioLogueado.charAt(0).toUpperCase();
+
+                const mensajeHTML = `
+                    <div class="message sent">
+                        <div class="avatar">${inicial}</div>
+                        <div class="msg-bubble">
+                            <div>${texto}</div>
+                            <div class="msg-time">${hora}</div>
+                        </div>
+                    </div>
+                `;
+                
+                chatBody.insertAdjacentHTML('beforeend', mensajeHTML);
+                input.value = "";
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        }
+
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                enviarMensaje();
+            }
+        }
+
+        function enviarAudio() {
+            const chatBody = document.getElementById('chat-body');
+            const hora = obtenerHoraActual();
+            const inicial = nombreUsuarioLogueado.charAt(0).toUpperCase();
+
+            const audioHTML = `
+                <div class="message sent">
+                    <div class="avatar">${inicial}</div>
+                    <div class="msg-bubble">
+                        <div>🎙️ <i>Audio de voz enviado</i></div>
+                        <div class="msg-time">${hora}</div>
+                    </div>
+                </div>
+            `;
+            chatBody.insertAdjacentHTML('beforeend', audioHTML);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // Redirección al index al cerrar sesión
+        function cerrarSesion() {
+            alert("Sesión cerrada correctamente.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+</body>
+</html>
