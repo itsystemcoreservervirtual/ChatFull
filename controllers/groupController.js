@@ -1,13 +1,13 @@
 const Group = require('../models/Group');
 
-// CREAR NUEVO GRUPO
+
 exports.createGroup = async (req, res) => {
     try {
         const { name, adminId } = req.body;
         const newGroup = new Group({
             name,
             admin: adminId,
-            members: [adminId] // El creador entra automáticamente como miembro
+            members: [adminId] 
         });
         await newGroup.save();
         res.status(201).json(newGroup);
@@ -16,7 +16,7 @@ exports.createGroup = async (req, res) => {
     }
 };
 
-// AGREGAR INTEGRANTE
+
 exports.addMember = async (req, res) => {
     try {
         const { groupId, adminId, newMemberId } = req.body;
