@@ -7,20 +7,20 @@ const groupSchema = new mongoose.Schema({
         trim: true
     },
     avatar: {
-        type: String, // URL de la foto de perfil del grupo
-        default: 'https://via.placeholder.com/150' // Imagen por defecto
+        type: String, 
+        default: 'https://via.placeholder.com/150' 
     },
     admin: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // El usuario que creó el grupo y tiene los permisos de administración
+        ref: 'User', 
         required: true
     },
     members: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User' // Lista de todos los amigos que pertenecen a este grupo
+        ref: 'User' 
     }]
 }, {
-    timestamps: true // Registra la fecha exacta en la que se creó el grupo
+    timestamps: true 
 });
 
 module.exports = mongoose.model('Group', groupSchema);
